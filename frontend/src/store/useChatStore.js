@@ -64,7 +64,7 @@ subscribeToMessages: () => {
       set({ messages: [...get().messages, newMessage] });
     }
   });
-}
+},
 
   unSubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
