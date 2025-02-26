@@ -15,7 +15,6 @@ export const useChatStore = create((set, get) => ({
       set({ isUsersLoading: true });
       const res = await axiosInstance.get("/messages/users");
       set({ users: res.data });
-      console.log("users from chatstore: ", users);
     } catch (error) {
       toast.error(error.response.data.message);
     } finally {
@@ -49,19 +48,23 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  subscribeToMessages: () => {
-    const { selectedUser } = get();
-    if (!selectedUser) return;
+subscribeToMessages: () => {
+  const { selectedUser } = get();
+  if (!selectedUser) return;
 
-    const socket = useAuthStore.getState().socket;
-    socket.off("newMessage");
-    socket.on("newMessage", (newMessage) => {
-      const isMessageSentFromSelectedUser =
-        newMessage.senderId !== selectedUser._id;
-      if(!isMessageSentFromSelectedUser)return;
+  const socket = useAuthStore.getState().socket;
+  socket.off("newMessage");
+
+  socket.on("newMessage", (newMessage) => {
+    // ✅ Allow messages from or to the selected user
+    if (
+      newMessage.senderId === selectedUser._id ||
+      newMessage.receiverId === selectedUser._id
+    ) {
       set({ messages: [...get().messages, newMessage] });
-    });
-  },
+    }
+  });
+}
 
   unSubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
@@ -69,6 +72,8 @@ export const useChatStore = create((set, get) => ({
   },
 
   setSelectedUser: async (selectedUser) => {
+    get().unSubscribeFromMessages();
     set({ selectedUser });
+
   },
 }));

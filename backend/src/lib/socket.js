@@ -13,7 +13,8 @@ export function getReceiverSocketId(userId){
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173"],
+    origin: [
+      "http://localhost:5173","https://buzz-fullstack-chat-app.onrender.com"],
   },
 });
 
